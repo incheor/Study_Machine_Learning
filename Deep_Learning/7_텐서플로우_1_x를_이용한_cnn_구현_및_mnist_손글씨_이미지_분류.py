@@ -279,7 +279,7 @@ conv_1f_W = createFilterByWeight('1f_conv', (5, 5, 1, 32)) # 커널의 크기(5,
 # 2. 편향값 준비
 # 퍼셉트론에 의하면 y = xW + b
 # 커널의 출력 채널값을 1차원에 shape로 넣으면 식은 성립함(브로드캐스팅해주면 됨)
-conv_1f_b = createBias('1f_conv', (32, ), value = 1.0)
+conv_1f_b = createBias('1f_conv', (32, ), value = 0.1)
 
 # 3. 입력데이터 분비
 # 4차원 데이터로 형변환해줌
@@ -358,7 +358,7 @@ pool_1f
 conv_2f_W = createFilterByWeight('2f_conv', (5, 5, 32, 32 * 2))
 
 # 2. 편향값 준비
-conv_2f_b = createBias('2f_conv', (32 * 2, ), value = 1.0)
+conv_2f_b = createBias('2f_conv', (32 * 2, ), value = 0.1)
 
 # 4. 합성곱층 생성
 # xW + b
@@ -468,7 +468,7 @@ _, in_ch = act_fc_dropout.shape
 y_W = createFilterByWeight('output', (in_ch, LABEL_NUM))
 
 # 편향값
-y_b = createBias('output', (in_ch, LABEL_NUM), 0.1)
+y_b = createBias('output', (LABEL_NUM, ), 0.1)
 
 # 출력층 (?, 1024) * (?, 10) -> (?, 10)
 y_conv = tf.matmul(act_fc_dropout, y_W) + y_b
@@ -590,10 +590,10 @@ losses = list()
 
 with tf.Session() as sess :
   # 최대 학습은 미고려, 단순하게 2500회 진행
-  TRAIN_TOTAL_COUNT = 2500
+  TRAIN_TOTAL_COUNT = 3000
   
   # 1회 학습시 64개의 데이터를 넣어서 학습
-  BATCH_SIZE = 64
+  BATCH_SIZE = 50
 
   # 100번의 학습이 진행되면 로그를 출력
   VERBOSE_INTERVAL = 100
@@ -620,7 +620,7 @@ with tf.Session() as sess :
     if step % VERBOSE_INTERVAL == 0 :
       # 테스트 데이터를 주입하기 위해 준비
       # 학습이 아니라 테스트 데이터라서 학습 방해 비율은 0(1 - 1.0)으로 설정함
-      test_fd = createFeedDict(mnist.test.images, mnist.text.labels, 1.0)
+      test_fd = createFeedDict(mnist.test.images, mnist.test.labels, 1.0)
 
       # 테스트 데이터를 넣어서 예측 수행 
       acc = sess.run(accuracy, feed_dict = test_fd)
